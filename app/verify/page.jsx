@@ -1,6 +1,73 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 import NavBar from "../components/NavBar";
+import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function VerifyPage() {
+  const [files, setFiles] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onDrop = useCallback((acceptedFiles) => {
+    setFiles(prev => [...prev, ...acceptedFiles.map(file => ({
+      file,
+      id: Math.random().toString(36).substring(7)
+    }))]);
+  }, []);
+
+  const removeFile = (fileId) => {
+    setFiles(files => files.filter(f => f.id !== fileId));
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/*': ['.png', '.jpg', '.jpeg'],
+      'text/csv': ['.csv'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls']
+    }
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Commented out API call code
+      /*
+      const formData = new FormData();
+      files.forEach(({ file }) => {
+        formData.append('files', file);
+      });
+
+      const response = await fetch('/api/verify-documents', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload files');
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      */
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      alert('Files processed successfully! (API call simulated)');
+      setFiles([]);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error processing files. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-black">
       <NavBar />

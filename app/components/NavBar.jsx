@@ -15,7 +15,7 @@ const NavBar = () => {
         {authenticated && (
           <>
             <Link href="/generate" className="hover:text-gray-300">
-              Generate
+              Borrow 
             </Link>
             <Link href="/verify" className="hover:text-gray-300">
               Verify
