@@ -2,102 +2,122 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-white text-black">
+      {/* Navigation Bar */}
+      <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <span className="font-title font-bold text-xl">PrivLend</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <div className="hidden md:flex items-center space-x-8">
+          <a href="#" className="text-black hover:text-lime-500 text-sm font-medium">Home</a>
+          <a href="#" className="text-black hover:text-lime-500 text-sm font-medium">Generate</a>
+          <a href="#" className="text-black hover:text-lime-500 text-sm font-medium">Verify</a>
+        </div>
+        <button className="bg-black text-white rounded-full px-6 py-2 text-sm font-medium hover:bg-gray-800 transition">
+          Sign In
+        </button>
+      </nav>
+
+      {/* Hero Section with decorative elements */}
+      <div className="container mx-auto px-6 py-20 relative min-h-[75vh] flex items-center">
+        <div className="max-w-3xl relative z-10">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight flex flex-col gap-4">
+            <span className="font-title">Protect Your Data.</span>
+            <span className="bg-indigo-100 px-3 py-1 rounded-lg w-fit">Unlock Your Credit.</span>
+          </h1>
+          <p className="text-gray-600 mb-10 text-lg">
+          DeFi lending requires credit scores, but users want privacy. Without a way to privately verify creditworthiness, undercollateralized loans remain a challenge.
+          </p>
+          <button className="bg-black text-white rounded-full px-8 py-4 text-sm font-medium hover:bg-gray-800 transition">
+            Generate Your Proof Now
+          </button>
+        </div>
+      </div>
+
+      {/* Problem Statement */}
+      <div className="bg-gray-50 py-16">
+        <div className="container mx-auto px-6">
+          <p className="text-xl md:text-2xl text-center max-w-3xl mx-auto text-gray-700">
+            Undercollateralized lending in DeFi is challenging—how can you prove your creditworthiness without exposing your financial data?
+          </p>
+        </div>
+      </div>
+
+      {/* Solution Section */}
+      <div className="container mx-auto px-6 py-20">
+        <h2 className="text-3xl font-bold mb-12 text-center font-title">🚀 Our Solution</h2>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="mb-4 flex items-center">
+              <div className="w-10 h-10 bg-black flex items-center justify-center rounded-full">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z" fill="white"/>
+                </svg>
+              </div>
+              <h3 className="font-bold text-xl ml-3 font-title">Secured by TEE</h3>
+            </div>
+            <p className="text-gray-600">Your data is processed in a protected environment.</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="mb-4 flex items-center">
+              <div className="w-10 h-10 bg-black flex items-center justify-center rounded-full">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z" fill="white"/>
+                </svg>
+              </div>
+              <h3 className="font-bold text-xl ml-3 font-title">ZK Proofs</h3>
+            </div>
+            <p className="text-gray-600">Prove your credit score without revealing any personal information.</p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="mb-4 flex items-center">
+              <div className="w-10 h-10 bg-black flex items-center justify-center rounded-full">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z" fill="white"/>
+                </svg>
+              </div>
+              <h3 className="font-bold text-xl ml-3 font-title">100% Decentralized</h3>
+            </div>
+            <p className="text-gray-600">No intermediaries, no central authority.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Process Steps */}
+      <div className="bg-gray-50 py-20">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold mb-12 text-center font-title">🔗 How It Works?</h2>
+          
+          <div className="grid md:grid-cols-3 gap-10">
+            <div className="relative">
+              <div className="absolute -left-3 -top-3 w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center text-black font-bold">1</div>
+              <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 h-full">
+                <h3 className="font-bold text-xl mb-4 font-title">Submit Data</h3>
+                <p className="text-gray-600">You submit your encrypted financial data (e.g., bank history).</p>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="absolute -left-3 -top-3 w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center text-black font-bold">2</div>
+              <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 h-full">
+                <h3 className="font-bold text-xl mb-4 font-title">Generate Proof</h3>
+                <p className="text-gray-600">Our protocol generates a cryptographic proof (ZK Proof) of your credit score.</p>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="absolute -left-3 -top-3 w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center text-black font-bold">3</div>
+              <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 h-full">
+                <h3 className="font-bold text-xl mb-4 font-title">Use Anywhere</h3>
+                <p className="text-gray-600">Use this proof on DeFi platforms without ever revealing your sensitive data.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+   </div>
   );
 }
