@@ -1,5 +1,22 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Project Overview
+
+This application allows users to:
+1. Upload PDF documents containing financial information
+2. Extract text from these documents
+3. Generate a credit score based on the extracted information using an AI model
+
+## Environment Setup
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+NEXT_PUBLIC_OLLAMA_API_URL=http://your-ollama-server:5000/api/generate
+```
+
+This environment variable points to the Ollama API server that processes the text and generates the credit score.
+
 ## Getting Started
 
 First, run the development server:

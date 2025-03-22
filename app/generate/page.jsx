@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import NavBar from "../components/NavBar";
 import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -10,6 +10,21 @@ export default function GeneratePage() {
   const [files, setFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [extractedText, setExtractedText] = useState('');
+  const [creditScore, setCreditScore] = useState(null);
+  const [apiUrl, setApiUrl] = useState('');
+
+  useEffect(() => {
+    // Load environment variables
+    const loadEnv = async () => {
+      try {
+        setApiUrl(process.env.NEXT_PUBLIC_OLLAMA_API_URL || 'http://3.111.10.114:5000/api/generate');
+      } catch (error) {
+        console.error('Error loading environment variables:', error);
+      }
+    };
+    
+    loadEnv();
+  }, []);
 
   const onDrop = useCallback((acceptedFiles) => {
     setFiles(prev => [...prev, ...acceptedFiles.map(file => ({
@@ -39,10 +54,56 @@ export default function GeneratePage() {
     }
   };
 
+  const generateCreditScore = async (text) => {
+    try {
+      // Define the JSON schema for the structured output
+      const creditScoreSchema = {
+        type: "object",
+        properties: {
+          credit_score: {
+            type: "integer",
+            description: "The credit score between 300 and 850"
+          }
+        },
+        required: ["credit_score"]
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: "gemma3:1b",
+          prompt: `Analyze the following bank statement information and generate a credit score. Consider factors like income stability, spending habits, savings, and debt levels. Here is the text to analyze: ${text}`,
+          format: creditScoreSchema,
+          stream: false
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // With structured output, we directly access the credit_score field
+      if (data.response && data.response.credit_score) {
+        return data.response.credit_score.toString();
+      } else {
+        throw new Error('Could not extract a valid credit score from the response');
+      }
+    } catch (error) {
+      console.error('Error generating credit score:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setExtractedText('');
+    setCreditScore(null);
 
     try {
       if (files.length === 0) {
@@ -66,10 +127,13 @@ export default function GeneratePage() {
       setExtractedText(combinedText);
       console.log('Extracted Text:', combinedText);
       
-      alert('PDF text extraction completed!');
+      // Generate credit score using the extracted text
+      const score = await generateCreditScore(combinedText);
+      setCreditScore(score);
+      
     } catch (error) {
       console.error('Error:', error);
-      alert('Error processing PDF files. Please try again.');
+      alert('Error processing documents. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -143,8 +207,20 @@ export default function GeneratePage() {
                   ? 'bg-gray-300 cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800'}`}
             >
-              {isSubmitting ? 'Processing...' : 'Extract PDF Text'}
+              {isSubmitting ? 'Processing...' : 'Generate Credit Score'}
             </button>
+
+            {creditScore && (
+              <div className="mt-8 p-6 border border-gray-200 rounded-lg bg-indigo-50 text-center">
+                <h3 className="font-bold text-xl mb-2">Your Credit Score</h3>
+                <div className="text-5xl font-bold text-indigo-600 my-4">
+                  {creditScore}
+                </div>
+                <p className="text-gray-600">
+                  This score was generated based on your financial documents using AI analysis.
+                </p>
+              </div>
+            )}
 
             {extractedText && (
               <div className="mt-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
