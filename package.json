@@ -9,7 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aztec/bb.js": "^0.82.0",
     "@heroicons/react": "^2.2.0",
+    "@noir-lang/acvm_js": "^1.0.0-beta.3",
+    "@noir-lang/backend_barretenberg": "^0.36.0",
+    "@noir-lang/barretenberg": "^2.22.0",
+    "@noir-lang/noir_js": "^1.0.0-beta.3",
+    "@noir-lang/noir_wasm": "^1.0.0-beta.3",
+    "@noir-lang/noirc_abi": "^1.0.0-beta.3",
     "@privy-io/react-auth": "^2.6.4",
     "canvas": "^3.1.0",
     "lucide-react": "^0.483.0",
