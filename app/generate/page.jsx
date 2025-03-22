@@ -4,10 +4,12 @@ import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import NavBar from "../components/NavBar";
 import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import extractTextFromPDF from 'pdf-parser-client-side';
 
 export default function GeneratePage() {
   const [files, setFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [extractedText, setExtractedText] = useState('');
 
   const onDrop = useCallback((acceptedFiles) => {
     setFiles(prev => [...prev, ...acceptedFiles.map(file => ({
@@ -24,45 +26,50 @@ export default function GeneratePage() {
     onDrop,
     accept: {
       'application/pdf': ['.pdf'],
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.csv'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls']
     }
   });
+
+  const extractTextFromPdf = async (pdfFile) => {
+    try {
+      const text = await extractTextFromPDF(pdfFile, 'clean');
+      return text;
+    } catch (error) {
+      console.error('Error extracting text from PDF:', error);
+      return 'Failed to extract text from PDF';
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setExtractedText('');
 
     try {
-      // Commented out API call code
-      /*
-      const formData = new FormData();
-      files.forEach(({ file }) => {
-        formData.append('files', file);
-      });
-
-      const response = await fetch('/api/generate-proof', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to process files');
+      if (files.length === 0) {
+        alert('Please upload at least one PDF file');
+        setIsSubmitting(false);
+        return;
       }
 
-      const data = await response.json();
-      console.log('Success:', data);
-      */
+      const extractionPromises = files.map(async ({ file }) => {
+        if (file.type !== 'application/pdf') {
+          return `${file.name} is not a PDF file. Skipping...`;
+        }
+        
+        const text = await extractTextFromPdf(file);
+        return `--- Text from ${file.name} ---\n${text}\n\n`;
+      });
+
+      const results = await Promise.all(extractionPromises);
+      const combinedText = results.join('');
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      alert('Proof generated successfully! (API call simulated)');
-      setFiles([]);
+      setExtractedText(combinedText);
+      console.log('Extracted Text:', combinedText);
+      
+      alert('PDF text extraction completed!');
     } catch (error) {
       console.error('Error:', error);
-      alert('Error generating proof. Please try again.');
+      alert('Error processing PDF files. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -95,14 +102,14 @@ export default function GeneratePage() {
               <input {...getInputProps()} />
               <DocumentArrowUpIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               {isDragActive ? (
-                <p className="text-lg text-gray-600">Drop the files here...</p>
+                <p className="text-lg text-gray-600">Drop the PDF files here...</p>
               ) : (
                 <div>
                   <p className="text-lg text-gray-600 mb-2">
-                    Drag & drop files here, or click to select files
+                    Drag & drop PDF files here, or click to select files
                   </p>
                   <p className="text-sm text-gray-500">
-                    Supported formats: PDF, PNG, JPG, CSV, XLSX
+                    Only PDF files are supported
                   </p>
                 </div>
               )}
@@ -136,8 +143,17 @@ export default function GeneratePage() {
                   ? 'bg-gray-300 cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800'}`}
             >
-              {isSubmitting ? 'Processing...' : 'Generate Proof'}
+              {isSubmitting ? 'Processing...' : 'Extract PDF Text'}
             </button>
+
+            {extractedText && (
+              <div className="mt-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <h3 className="font-bold text-lg mb-2">Extracted Text:</h3>
+                <div className="text-sm text-gray-600 max-h-96 overflow-y-auto whitespace-pre-wrap">
+                  {extractedText}
+                </div>
+              </div>
+            )}
 
             <p className="text-xs text-gray-500 mt-4 text-center">
               Your data will be processed securely in a Trusted Execution Environment.

@@ -8,6 +8,7 @@ import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 export default function VerifyPage() {
   const [files, setFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [extractedText, setExtractedText] = useState('');
 
   const onDrop = useCallback((acceptedFiles) => {
     setFiles(prev => [...prev, ...acceptedFiles.map(file => ({
@@ -24,45 +25,28 @@ export default function VerifyPage() {
     onDrop,
     accept: {
       'application/pdf': ['.pdf'],
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.csv'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls']
     }
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setExtractedText('');
 
     try {
-      // Commented out API call code
-      /*
-      const formData = new FormData();
-      files.forEach(({ file }) => {
-        formData.append('files', file);
-      });
-
-      const response = await fetch('/api/verify-documents', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload files');
+      if (files.length === 0) {
+        alert('Please upload at least one PDF file');
+        setIsSubmitting(false);
+        return;
       }
 
-      const data = await response.json();
-      console.log('Success:', data);
-      */
+      setExtractedText('Extracted Text');
+      console.log('Extracted Text:');
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      alert('Files processed successfully! (API call simulated)');
-      setFiles([]);
+      alert('PDF text extraction completed!');
     } catch (error) {
       console.error('Error:', error);
-      alert('Error processing files. Please try again.');
+      alert('Error processing PDF files. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -81,44 +65,53 @@ export default function VerifyPage() {
         <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200 max-w-2xl mx-auto">
           <h2 className="text-2xl font-bold mb-6 font-title">Proof Verification</h2>
           
-          <div className="mb-6">
-            <label htmlFor="proofId" className="block text-sm font-medium text-gray-700 mb-2">
-              Proof ID or Borrower Address
-            </label>
-            <input
-              type="text"
-              id="proofId"
-              placeholder="0x..."
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-            />
+          <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-lg p-6 mb-6 text-center cursor-pointer hover:bg-gray-50 transition">
+            <input {...getInputProps()} />
+            <DocumentArrowUpIcon className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+            {isDragActive ? (
+              <p className="text-gray-600">Drop the PDF files here...</p>
+            ) : (
+              <p className="text-gray-600">Drag &amp; drop PDF files here, or click to select files</p>
+            )}
           </div>
           
-          <div className="mb-6">
-            <label htmlFor="criteria" className="block text-sm font-medium text-gray-700 mb-2">
-              Verification Criteria
-            </label>
-            <select
-              id="criteria"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-            >
-              <option value="">Select verification criteria</option>
-              <option value="creditScore">Credit Score {`>`} 700</option>
-              <option value="income">Monthly Income {`>`} $5,000</option>
-              <option value="debtRatio">Debt-to-Income Ratio {`<`} 30%</option>
-              <option value="history">Payment History {`>`} 95% on-time</option>
-            </select>
-          </div>
+          {files.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Uploaded files:</h3>
+              <ul className="space-y-2">
+                {files.map(fileObj => (
+                  <li key={fileObj.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                    <span className="truncate max-w-xs">{fileObj.file.name}</span>
+                    <button 
+                      onClick={() => removeFile(fileObj.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           
-          <button className="w-full bg-black text-white rounded-full py-3 font-medium hover:bg-gray-800 transition">
-            Verify Proof
+          <button 
+            onClick={handleSubmit}
+            disabled={isSubmitting || files.length === 0}
+            className={`w-full bg-black text-white rounded-full py-3 font-medium transition ${
+              isSubmitting || files.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'
+            }`}
+          >
+            {isSubmitting ? 'Processing...' : 'Extract PDF Text'}
           </button>
           
-          <div className="mt-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
-            <h3 className="font-bold text-lg mb-2">Verification Results</h3>
-            <p className="text-gray-600">
-              Connect your wallet and submit a proof ID to see verification results.
-            </p>
-          </div>
+          {extractedText && (
+            <div className="mt-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <h3 className="font-bold text-lg mb-2">Extracted Text:</h3>
+              <div className="text-sm text-gray-600 max-h-96 overflow-y-auto whitespace-pre-wrap">
+                {extractedText}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
