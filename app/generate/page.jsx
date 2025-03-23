@@ -70,6 +70,7 @@ export default function GeneratePage() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-cors-api-key': 'temp_712fa4d09436cbb84c9d0e5e12504919'
           },
           body: JSON.stringify({
             model: "gemma3:1b",
