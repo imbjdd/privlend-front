@@ -23,7 +23,10 @@ Create a `.env.local` file in the root directory with the following variables:
 
 ```
 NEXT_PUBLIC_OLLAMA_API_URL=http://your-ollama-server:5000/api/generate
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x4765F058857Ea8471caC22FAaaBF2C6c1342417b
 ```
+
+For the demo, we've deployed it on Arbitrum!
 
 This environment variable points to the Ollama API server that processes the text and generates the credit score.
 
