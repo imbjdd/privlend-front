@@ -11,7 +11,7 @@ export default function GeneratePage() {
   const [files, setFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [extractedText, setExtractedText] = useState('');
-  const [creditScore, setCreditScore] = useState(700);
+  const [creditScore, setCreditScore] = useState(null);
   const [apiUrl, setApiUrl] = useState('');
   const [showZKProof, setShowZKProof] = useState(false);
 
@@ -19,7 +19,7 @@ export default function GeneratePage() {
     // Load environment variables
     const loadEnv = async () => {
       try {
-        setApiUrl(process.env.NEXT_PUBLIC_OLLAMA_API_URL || 'http://3.111.10.114:5000/api/generate');
+        setApiUrl(process.env.NEXT_PUBLIC_OLLAMA_API_URL || 'http://13.127.130.19:5000/api/generate');
       } catch (error) {
         console.error('Error loading environment variables:', error);
       }
@@ -58,45 +58,141 @@ export default function GeneratePage() {
 
   const generateCreditScore = async (text) => {
     try {
-      // Define the JSON schema for the structured output
       const creditScoreSchema = {
-        type: "object",
-        properties: {
-          credit_score: {
-            type: "integer",
-            description: "The credit score between 300 and 850"
-          }
-        },
-        required: ["credit_score"]
+        type: "integer",
+        description: "A credit score between 300 and 850"
       };
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: "gemma3:1b",
-          prompt: `Analyze the following bank statement information and generate a credit score. Consider factors like income stability, spending habits, savings, and debt levels. Here is the text to analyze: ${text}`,
-          format: creditScoreSchema,
-          stream: false
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      console.log('Making API request to:', apiUrl);
       
-      // With structured output, we directly access the credit_score field
-      if (data.response && data.response.credit_score) {
-        return data.response.credit_score.toString();
-      } else {
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: "gemma3:1b",
+            prompt: `Generate ONLY a credit score number between 300 and 850 based on the following bank statement information. Only output the numeric score, without any additional text, explanation or formatting. The score should be based on factors like income stability, spending habits, savings, and debt levels. Here is the text to analyze: ${text}`,
+            format: creditScoreSchema,
+            stream: false
+          })
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries([...response.headers]));
+        
+        if (!response.ok) {
+          console.log('Response not OK, status:', response.status);
+          const errorText = await response.text();
+          console.log('Error response body:', errorText);
+          throw new Error(`API request failed with status: ${response.status}`);
+        }
+
+        const responseText = await response.text();
+        console.log('Raw response text:', responseText);
+        
+        let data;
+        try {
+          data = JSON.parse(responseText);
+          console.log('Parsed response data:', data);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          
+          // Check if the response is just a number
+          const numberMatch = responseText.trim().match(/^(\d+)$/);
+          if (numberMatch) {
+            console.log('Response appears to be just a number:', numberMatch[1]);
+            return numberMatch[1];
+          }
+          
+          throw new Error('Failed to parse JSON response');
+        }
+        
+        // Try different possible response formats
+        console.log('Looking for credit score in data:', data);
+        
+        // Case 1: Direct integer response
+        if (typeof data === 'number') {
+          console.log('Found direct number response:', data);
+          return data.toString();
+        }
+        
+        // Case 2: Response in a "response" field
+        if (data.response !== undefined) {
+          // Case 2a: Direct integer in response field
+          if (typeof data.response === 'number') {
+            console.log('Found number in response field:', data.response);
+            return data.response.toString();
+          }
+          
+          // Case 2b: Structured object with credit_score field
+          if (data.response && data.response.credit_score !== undefined) {
+            console.log('Found credit_score in response object:', data.response.credit_score);
+            return data.response.credit_score.toString();
+          }
+          
+          // Case 2c: Response is a string containing just a number
+          if (typeof data.response === 'string') {
+            const numberMatch = data.response.trim().match(/^(\d+)$/);
+            if (numberMatch) {
+              console.log('Found number in response string:', numberMatch[1]);
+              return numberMatch[1];
+            }
+          }
+        }
+        
+        // Case 3: Direct value in credit_score field
+        if (data.credit_score !== undefined) {
+          console.log('Found credit_score at top level:', data.credit_score);
+          return data.credit_score.toString();
+        }
+        
+        // Case 4: Extract first number from any string field
+        const extractNumberFromObject = (obj) => {
+          for (const key in obj) {
+            if (typeof obj[key] === 'string') {
+              const numberMatch = obj[key].match(/\d{3,3}/);
+              if (numberMatch) {
+                console.log(`Found number in ${key} field:`, numberMatch[0]);
+                return numberMatch[0];
+              }
+            }
+          }
+          return null;
+        };
+        
+        const extractedNumber = extractNumberFromObject(data) || 
+                               (data.response && typeof data.response === 'object' ? 
+                                extractNumberFromObject(data.response) : null);
+        
+        if (extractedNumber) {
+          return extractedNumber;
+        }
+        
+        console.error('Could not find a credit score in the response!', data);
+        
+        // Fallback for development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Using fallback credit score for development');
+          return Math.floor(Math.random() * (800 - 500) + 500).toString();
+        }
+        
         throw new Error('Could not extract a valid credit score from the response');
+      } catch (fetchError) {
+        console.error('Fetch operation error:', fetchError);
+        throw fetchError;
       }
     } catch (error) {
       console.error('Error generating credit score:', error);
+      
+      // Fallback to a simulated credit score in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Generating simulated credit score for development purposes');
+        // Generate a random credit score between 500 and 800
+        return Math.floor(Math.random() * (800 - 500) + 500).toString();
+      }
+      
       throw error;
     }
   };
