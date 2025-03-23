@@ -23,6 +23,9 @@ const NavBar = () => {
             <Link href="/profile" className="hover:text-gray-300">
               Profile
             </Link>
+            <Link href="/lender" className="hover:text-gray-300">
+              Lender
+            </Link>
           </>
         )}
       </div>
