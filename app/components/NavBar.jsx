@@ -15,10 +15,13 @@ const NavBar = () => {
         {authenticated && (
           <>
             <Link href="/generate" className="hover:text-gray-300">
-              Borrow 
+              Get Score 
             </Link>
             <Link href="/verify" className="hover:text-gray-300">
               Verify
+            </Link>
+            <Link href="/borrow" className="hover:text-gray-300">
+              Borrow
             </Link>
             <Link href="/profile" className="hover:text-gray-300">
               Profile
