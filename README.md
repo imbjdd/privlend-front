@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Privlend
+
+This project introduces a decentralized, privacy-preserving loan verification system that enables borrowers to prove their creditworthiness without revealing sensitive financial data. Borrower uploads financial data, sent directly to the TEE for secure processing. The TEE processes them, generates a credit score, and a ZKP ensures trustless verification. Lenders can confidently issue loans without ever seeing private borrower data. This approach enhances privacy, expands financial access, and creates a more inclusive DeFi lending ecosystem. 🚀
+
+- [imbjdd/privlend-front](https://github.com/imbjdd/privlend-front) - Monorepo (Primary)
+- [junaama/trifecta-sc](https://github.com/junaama/trifecta-sc) - Contracts (Make primary)
+- [imbjdd/proxy-llm](https://github.com/imbjdd/proxy-llm) - Backend (Make primary)
+- [imbjdd/privlend-zkfront](https://github.com/imbjdd/privlend-zkfront) - Frontend (Make primary)
+- [imbjdd/privlend-llm](https://github.com/imbjdd/privlend-llm) - Backend (Make primary)
+
+NETX.js app
 
 ## Project Overview
 
