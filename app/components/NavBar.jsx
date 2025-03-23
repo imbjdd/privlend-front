@@ -20,6 +20,9 @@ const NavBar = () => {
             <Link href="/verify" className="hover:text-gray-300">
               Verify
             </Link>
+            <Link href="/profile" className="hover:text-gray-300">
+              Profile
+            </Link>
           </>
         )}
       </div>
