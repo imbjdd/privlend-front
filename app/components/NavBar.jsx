@@ -17,9 +17,6 @@ const NavBar = () => {
             <Link href="/generate" className="hover:text-gray-300">
               Get Score 
             </Link>
-            <Link href="/verify" className="hover:text-gray-300">
-              Verify
-            </Link>
             <Link href="/borrow" className="hover:text-gray-300">
               Borrow
             </Link>
