@@ -3,8 +3,27 @@
 import Image from "next/image";
 import NavBar from "./components/NavBar";
 import { Eye, Plus, Globe } from "lucide-react";
+import { usePrivy } from '@privy-io/react-auth';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Home() {
+  const { authenticated } = usePrivy();
+  const router = useRouter();
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleGenerateProof = () => {
+    if (authenticated) {
+      router.push('/generate');
+    } else {
+      setShowPopup(true);
+      // Auto-hide popup after 3 seconds
+      setTimeout(() => {
+        setShowPopup(false);
+      }, 3000);
+    }
+  };
+
   return (
     <div className="lg:h-screen min-h-screen bg-white text-black">
       {/* Navigation Bar */}
@@ -20,9 +39,19 @@ export default function Home() {
           <p className="text-gray-600 mb-10 text-lg">
           DeFi lending requires credit scores, but users want privacy. Without a way to privately verify creditworthiness, undercollateralized loans remain a challenge.
           </p>
-          <button className="bg-black text-white rounded-full px-8 py-4 text-sm font-medium hover:bg-gray-800 transition">
+          <button 
+            className="bg-black text-white rounded-full px-8 py-4 text-sm font-medium hover:bg-gray-800 transition"
+            onClick={handleGenerateProof}
+          >
             Generate Your Proof Now
           </button>
+          
+          {/* Not connected popup message */}
+          {showPopup && (
+            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-100 text-red-800 px-6 py-3 rounded-lg shadow-md z-50 animate-fadeIn">
+              You're not connected! Please connect your wallet first.
+            </div>
+          )}
         </div>
         <div className="relative w-[450px] h-[450px]">
           <Image 
