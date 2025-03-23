@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ethers } from 'ethers';
+import { usePrivy } from '@privy-io/react-auth';
+import { trifectaABI } from '../constants/contractABI';
 
 export default function ZKProofGenerator({ creditScore = 700 }) {
   const iframeRef = useRef(null);
@@ -9,8 +11,14 @@ export default function ZKProofGenerator({ creditScore = 700 }) {
   const [messageCount, setMessageCount] = useState(0);
   const [proof, setProof] = useState(null);
   const [proofHash, setProofHash] = useState(null);
+  const [isSending, setIsSending] = useState(false);
+  const [txStatus, setTxStatus] = useState(null);
   const intervalRef = useRef(null);
   const targetOrigin = '*';
+  const { user } = usePrivy();
+
+  // Contract address
+  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xYourContractAddressHere"; // Replace with actual contract address
 
   const sendCreditScoreToIframe = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -45,6 +53,46 @@ export default function ZKProofGenerator({ creditScore = 700 }) {
         }
       }
     }, 5000);
+  };
+
+  const sendProofOnChain = async () => {
+    if (!proofHash || !user?.wallet?.address) {
+      console.error("Missing proof hash or user wallet address");
+      return;
+    }
+
+    setIsSending(true);
+    setTxStatus("Sending transaction...");
+
+    try {
+      // Check if window.ethereum is available (MetaMask or other web3 provider)
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, trifectaABI, signer);
+
+        // Call the receiveZkProofResult function
+        const tx = await contract.receiveZkProofResult(
+          proofHash,                // _proofHash
+          user.wallet.address,      // _borrower (current user's address)
+          true,                     // _isValid (set to true as requested)
+          creditScore               // _reputationScore (using the credit score)
+        );
+
+        setTxStatus("Transaction sent! Waiting for confirmation...");
+        
+        // Wait for transaction to be confirmed
+        await tx.wait();
+        setTxStatus("Transaction confirmed! Proof sent on-chain successfully.");
+      } else {
+        setTxStatus("No Ethereum wallet detected. Please install MetaMask or another Web3 provider.");
+      }
+    } catch (error) {
+      console.error("Error sending proof on-chain:", error);
+      setTxStatus(`Error: ${error.message || "Failed to send transaction"}`);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   useEffect(() => {
@@ -175,6 +223,22 @@ export default function ZKProofGenerator({ creditScore = 700 }) {
                 <div className="mt-2">
                   <p className="text-sm font-semibold">Proof Hash (keccak256):</p>
                   <p className="text-xs font-mono break-all mt-1">{proofHash}</p>
+                  
+                  {/* Add the "Send Proof On-Chain" button */}
+                  <button
+                    onClick={sendProofOnChain}
+                    disabled={isSending}
+                    className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSending ? 'Sending...' : 'Send Proof On-Chain'}
+                  </button>
+                  
+                  {/* Display transaction status */}
+                  {txStatus && (
+                    <div className={`mt-2 text-sm ${txStatus.includes('Error') ? 'text-red-500' : 'text-blue-600'}`}>
+                      {txStatus}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
