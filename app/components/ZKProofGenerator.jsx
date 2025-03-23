@@ -89,7 +89,13 @@ export default function ZKProofGenerator({ creditScore = 700 }) {
       }
     } catch (error) {
       console.error("Error sending proof on-chain:", error);
-      setTxStatus(`Error: ${error.message || "Failed to send transaction"}`);
+      
+      // Add the demo-specific error message
+      if (error.message?.includes("execution reverted") || error.code === 'ACTION_REJECTED') {
+        setTxStatus("Error: In this demo, this feature is only available for the contract owner. Your transaction was rejected.");
+      } else {
+        setTxStatus(`Error: ${error.message || "Failed to send transaction"}`);
+      }
     } finally {
       setIsSending(false);
     }
